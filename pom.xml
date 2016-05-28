@@ -9,10 +9,10 @@
     </parent>
 
     <groupId>com.facebook.presto.hive</groupId>
-    <artifactId>hive-apache</artifactId>
-    <version>0.16</version>
+    <artifactId>hive-cdh</artifactId>
+    <version>0.16-cdh5.5.2</version>
 
-    <name>hive-apache</name>
+    <name>hive-cdh</name>
     <description>Shaded version of Apache Hive for Presto</description>
     <url>https://github.com/facebook/presto-hive-apache</url>
 
@@ -41,9 +41,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.targetJdk>1.7</project.build.targetJdk>
         <shadeBase>com.facebook.presto.hive.\$internal</shadeBase>
-        <dep.slf4j.version>1.6.6</dep.slf4j.version>
-        <dep.hive.version>1.2.0</dep.hive.version>
-        <dep.parquet.version>1.6.0</dep.parquet.version>
+        <dep.slf4j.version>1.7.5</dep.slf4j.version>
+        <ver.cdh>5.5.2</ver.cdh>
+        <dep.hive.version>1.1.0-cdh${ver.cdh}</dep.hive.version>
+        <dep.parquet.version>1.5.0-cdh${ver.cdh}</dep.parquet.version>
     </properties>
 
     <dependencies>
@@ -214,6 +215,14 @@
                     <groupId>log4j</groupId>
                     <artifactId>apache-log4j-extras</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jersey</groupId>
+                    <artifactId>jersey-servlet</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -347,8 +356,8 @@
                     <artifactId>ST4</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.antlr</groupId>
-                    <artifactId>ST4</artifactId>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.codehaus.groovy</groupId>
@@ -582,10 +591,12 @@
                                     <pattern>com.google.common</pattern>
                                     <shadedPattern>${shadeBase}.com.google.common</shadedPattern>
                                 </relocation>
+                                <!--
                                 <relocation>
                                     <pattern>org.codehaus.jackson</pattern>
                                     <shadedPattern>${shadeBase}.org.codehaus.jackson</shadedPattern>
                                 </relocation>
+                                -->
                                 <relocation>
                                     <pattern>org.iq80.snappy</pattern>
                                     <shadedPattern>${shadeBase}.org.iq80.snappy</shadedPattern>
@@ -634,10 +645,13 @@
                                     <artifact>org.apache.hive:hive-exec</artifact>
                                     <excludes>
                                         <exclude>org/apache/hadoop/hive/ql/io/CodecPool.class</exclude>
+                                        <exclude>org/apache/hadoop/hive/ql/io/WriterImpl.class</exclude>
                                         <exclude>javaewah/**</exclude>
                                         <exclude>javax/realtime/**</exclude>
                                         <exclude>javolution/**</exclude>
+                                    <!--
                                         <exclude>org/apache/avro/**</exclude>
+                                    -->
                                         <exclude>org/apache/thrift/**</exclude>
                                         <exclude>*.properties</exclude>
                                         <exclude>*.jar</exclude>
@@ -713,4 +727,37 @@
             </plugins>
         </pluginManagement>
     </build>
+    <profiles>
+        <profile>
+            <id>ourplat-repo</id>
+            <distributionManagement>
+                <repository>
+                    <id>ourplat.nexus</id>
+                    <layout>default</layout>
+                    <url>http://maven.ourplat.net/content/repositories/thirdparty/</url>
+                </repository>
+                <snapshotRepository>
+                    <id>ourplat.nexus</id>
+                    <layout>default</layout>
+                    <url>http://maven.ourplat.net/content/repositories/thirdparty-snapshots/</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
+
+        <profile>
+            <id>artifact-repo</id>
+            <distributionManagement>
+                <repository>
+                    <id>jtzh65</id>
+                    <name>jtzh65-releases</name>
+                    <url>http://jtzh65:58200/artifactory/ext-release-local</url>
+                </repository>
+                <snapshotRepository>
+                    <id>jtzh65</id>
+                    <name>jtzh65-snapshots</name>
+                    <url>http://jtzh65:58200/artifactory/ext-snapshot-local</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
+    </profiles>
 </project>
